@@ -13,10 +13,10 @@ class ArticleController extends Controller
     public function index(Request $request, HtmlFilterService $htmlFilterService)
     {
         // UNSECURE
-        $articles = Article::latest()->where('published',true)->take(6)->get();
+        // $articles = Article::latest()->where('published',true)->take(6)->get();
 
         // SECURE
-        //$articles = $htmlFilterService->filterHtmlCollectionByField($articles,'content');
+        $articles = $htmlFilterService->filterHtmlCollectionByField($articles,'content');
         if ($request->wantsJson()) {
             return response()->json($articles);
         }
@@ -27,36 +27,36 @@ class ArticleController extends Controller
     public function search(Request $request){
         
         // UNSECURE
-        $articles = Article::whereRaw("title like '%{$request->search}%'")->get();
+        // $articles = Article::whereRaw("title like '%{$request->search}%'")->get();
 
         // SECURE
-        // $articles = Article::where('title', 'LIKE', "%{$request->search}%")
-        //                     ->orWhere('content', 'LIKE', "%{$request->search}%")
-        // ->get();
+        $articles = Article::where('title', 'LIKE', "%{$request->search}%")
+                            ->orWhere('content', 'LIKE', "%{$request->search}%")
+        ->get();
         
         return view('articles.index',compact('articles'));
     }
     
     // UNSECURE
-    public function show(Article $article, Request $request)
-    {
-        if ($request->wantsJson()) {
-            return response()->json($article);
-        }
-        
-        return view('articles.show', compact('article'));
-    }
-
-    // SECURE
-    // public function show(Article $article, Request $request,HtmlFilterService $htmlFilterService)
+    // public function show(Article $article, Request $request)
     // {
-    //     $article->content = $htmlFilterService->filterHtml($article->content);
     //     if ($request->wantsJson()) {
     //         return response()->json($article);
     //     }
         
     //     return view('articles.show', compact('article'));
     // }
+
+    // SECURE
+    public function show(Article $article, Request $request,HtmlFilterService $htmlFilterService)
+    {
+        $article->content = $htmlFilterService->filterHtml($article->content);
+        if ($request->wantsJson()) {
+            return response()->json($article);
+        }
+        
+        return view('articles.show', compact('article'));
+    }
     
     public function create()
     {
@@ -66,10 +66,10 @@ class ArticleController extends Controller
     public function store(Request $request/*,HtmlFilterService $htmlFilterService*/)
     {
         // UNSECURE
-        $articleData = $request->all();
+        // $articleData = $request->all();
 
         // SECURE
-        //$articleData['content'] = $htmlFilterService->filterHtml($articleData['content']);
+        $articleData['content'] = $htmlFilterService->filterHtml($articleData['content']);
         
         if(!key_exists('user_id',$articleData)){
             $articleData['user_id']= Auth::id();
@@ -86,16 +86,22 @@ class ArticleController extends Controller
 
     public function edit(Article $article)
     {
+        if(Auth::id() !== $article-user_id && !Auth::user()->isAdmin()){
+            return redirect()->route('article.index')->with('mesage', 'Not Authorized');
+        }
         return view('articles.edit',compact('article'));
     }
 
     public function update(Request $request, Article $article/*,HtmlFilterService $htmlFilterService*/)
     {
+                if(Auth::id() !== $article-user_id && !Auth::user()->isAdmin()){
+            return redirect()->route('article.index')->with('mesage', 'Not Authorized');
+        }
         // UNSECURE
-        $articleData = $request->all();
+        // $articleData = $request->all();
 
         // SECURE
-        //$articleData['content'] = $htmlFilterService->filterHtml($articleData['content']);
+        $articleData['content'] = $htmlFilterService->filterHtml($articleData['content']);
 
         $article->update($articleData);
         
@@ -109,9 +115,9 @@ class ArticleController extends Controller
     public function destroy(Article $article, Request $request)
     {
         // SECURE
-        // if(Auth::id() !== $article->user_id){
-        //     return redirect()->route('articles.show', $article)->with('message','Not authorized');
-        // }
+        if(Auth::id() !== $article->user_id){
+            return redirect()->route('articles.show', $article)->with('message','Not authorized');
+        }
         
         $article->delete();
         
