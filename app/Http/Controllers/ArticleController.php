@@ -13,13 +13,13 @@ class ArticleController extends Controller
     public function index(Request $request, HtmlFilterService $htmlFilterService)
     {
         // UNSECURE
-        // $articles = Article::latest()->where('published',true)->take(6)->get();
+        $articles = Article::latest()->where('published',true)->take(6)->get();
 
         // SECURE
-        $articles = $htmlFilterService->filterHtmlCollectionByField($articles,'content');
-        if ($request->wantsJson()) {
-            return response()->json($articles);
-        }
+        // $articles = $htmlFilterService->filterHtmlCollectionByField($articles,'content');
+        //     if ($request->wantsJson()) {
+        //         return response()->json($articles);
+        // }
         
         return view('articles.index', compact('articles'));
     }
@@ -30,9 +30,7 @@ class ArticleController extends Controller
         // $articles = Article::whereRaw("title like '%{$request->search}%'")->get();
 
         // SECURE
-        $articles = Article::where('title', 'LIKE', "%{$request->search}%")
-                            ->orWhere('content', 'LIKE', "%{$request->search}%")
-        ->get();
+        $articles = Article::where('title', 'LIKE', "%{$request->search}%")->orWhere('content', 'LIKE', "%{$request->search}%")->get();
         
         return view('articles.index',compact('articles'));
     }
