@@ -71,3 +71,4 @@ Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('art
 
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
+Route::get('/download/{file}', [UserController::class, 'downloadPrivateFile'])->name('download.private');
