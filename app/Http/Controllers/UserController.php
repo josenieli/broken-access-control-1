@@ -166,7 +166,7 @@ class UserController extends Controller
     
     }
     
-     $filename = $file->getClientOriginalName();
+    $filename = $file->getClientOriginalName();
     
     // Genera un nome sicuro
     
