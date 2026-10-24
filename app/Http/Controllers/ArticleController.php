@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Services\HtmlFilterService;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class ArticleController extends Controller
 {
@@ -74,6 +76,13 @@ class ArticleController extends Controller
         }
         
         $article = Article::create($articleData);
+
+        // $article = new Article();
+        // $article->title = $articleData['title'];
+        // $article->content = $articleData['content'];
+        // $article->published = $articleData['published'];
+        // $article->user_id = $articleData['user_id'];
+        // $article->save();
         
         if ($request->wantsJson()) {
             return response()->json($article, 201);
@@ -84,17 +93,20 @@ class ArticleController extends Controller
 
     public function edit(Article $article)
     {
-        if(Auth::id() !== $article-user_id && !Auth::user()->isAdmin()){
-            return redirect()->route('article.index')->with('mesage', 'Not Authorized');
-        }
+        // if(Auth::id() !== $article-user_id && !Auth::user()->isAdmin()){
+        //     return redirect()->route('article.index')->with('mesage', 'Not Authorized');
+        // }
+        Gate::authorize('update', $article);
         return view('articles.edit',compact('article'));
     }
 
     public function update(Request $request, Article $article/*,HtmlFilterService $htmlFilterService*/)
     {
-                if(Auth::id() !== $article-user_id && !Auth::user()->isAdmin()){
-            return redirect()->route('article.index')->with('mesage', 'Not Authorized');
-        }
+    //         //     if(Auth::id() !== $article-user_id && !Auth::user()->isAdmin()){
+    //         // return redirect()->route('article.index')->with('mesage', 'Not Authorized');
+            
+    //     }
+        Gate::authorize('update', $article);
         // UNSECURE
         // $articleData = $request->all();
 

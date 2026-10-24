@@ -28,7 +28,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
-    Route::get('/articles/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
+    Route::get('/articles/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit')->middleware('can:update,post');
     Route::put('/articles/{article}', [ArticleController::class, 'update'])->name('articles.update');
     Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])->name('articles.destroy');    // UNSECURE
     // Route::get('/users/{id}',[UserController::class,'show'])->name('profile');
@@ -51,8 +51,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/articles', [AdminController::class,'articles'])->name('admin.articles');
         Route::get('/users', [AdminController::class,'users'])->name('admin.users');
         
-        Route::get('/users/{id}/toggle', [AdminController::class,'toggleUsersAdmin'])->name('admin.users.toggle');
-        Route::get('articles/{id}/toggle',[AdminController::class,'toggleArticleStatus'])->name('admin.articles.toggle');
+        // Route::get('/users/{id}/toggle', [AdminController::class,'toggleUsersAdmin'])->name('admin.users.toggle');
+        // Route::get('articles/{id}/toggle',[AdminController::class,'toggleArticleStatus'])->name('admin.articles.toggle');
 
         // UNSECURE - VULNERABILE A SSRF: fetch dati esterni da URL arbitrario
         // Route::get('/fetch-external-data', [AdminController::class,'fetchExternalData'])->name('admin.fetch-external-data');
